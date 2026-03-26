@@ -39,10 +39,10 @@ train_dataloader:
         - {type: RandomPhotometricDistort}
         - {type: RandomZoomOut, fill: 0}
         - {type: RandomIoUCrop, p: 0.8}
-        - {type: SanitizeBoundingBox}
+        - {type: SanitizeBoundingBoxes}
         - {type: RandomHorizontalFlip}
         - {type: Resize, size: [640, 640]}
-        - {type: SanitizeBoundingBox}
+        - {type: SanitizeBoundingBoxes}
         - {type: ConvertBox, out_fmt: cxcywh, normalize: True}
   shuffle: True
   batch_size: 8
