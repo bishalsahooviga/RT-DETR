@@ -1,0 +1,33 @@
+# ── Model ──────────────────────────────────────────────
+model:
+  backbone:
+    name: ResNetRGBN
+    num_channels: 4          # 3 → 4
+    pretrained: true         # loads RGB weights; NIR initialized as mean
+
+# ── Dataset ────────────────────────────────────────────
+train_dataloader:
+  dataset:
+    name: RGBNShipDataset
+    img_dir: /path/to/dataset/train
+    ann_file: /path/to/dataset/train.json
+  batch_size: 8
+  shuffle: true
+
+val_dataloader:
+  dataset:
+    name: RGBNShipDataset
+    img_dir: /path/to/dataset/val
+    ann_file: /path/to/dataset/val.json
+  batch_size: 4
+  shuffle: false
+
+# ── Classes ────────────────────────────────────────────
+num_classes: 1               # ship only
+
+# ── Normalization: 4-channel mean/std ──────────────────
+# Compute these from your dataset; placeholder values below
+transforms:
+  normalize:
+    mean: [0.485, 0.456, 0.406, 0.45]   # R, G, B, NIR
+    std:  [0.229, 0.224, 0.225, 0.22]   # R, G, B, NIR
