@@ -20,17 +20,25 @@ from src.core import register, GLOBAL_CONFIG
 __all__ = ['Compose', ]
 
 
+# AFTER (torchvision 0.16+ / 0.26 compatible)
 RandomPhotometricDistort = register(T.RandomPhotometricDistort)
 RandomZoomOut = register(T.RandomZoomOut)
-# RandomIoUCrop = register(T.RandomIoUCrop)
 RandomHorizontalFlip = register(T.RandomHorizontalFlip)
 Resize = register(T.Resize)
-ToImageTensor = register(T.ToImageTensor)
-ConvertDtype = register(T.ConvertDtype)
-SanitizeBoundingBox = register(T.SanitizeBoundingBox)
 RandomCrop = register(T.RandomCrop)
 Normalize = register(T.Normalize)
 
+# Renamed in torchvision >= 0.16
+ToImageTensor = register(T.ToPureTensor)
+
+# ConvertDtype → ToDtype in v2
+ConvertDtype = register(T.ToDtype)
+
+# SanitizeBoundingBox → SanitizeBoundingBoxes (plural) in newer versions
+try:
+    SanitizeBoundingBox = register(T.SanitizeBoundingBoxes)
+except AttributeError:
+    SanitizeBoundingBox = register(T.SanitizeBoundingBox)
 
 
 @register
