@@ -37,14 +37,15 @@ train_dataloader:
     transforms:
       type: Compose
       ops:
-        - {type: RandomPhotometricDistort}
-        - {type: RandomZoomOut, fill: 0}
+        # ── Geometric augmentations (4-channel safe) ──────────────────
         - {type: RandomIoUCrop, p: 0.8}
         - {type: SanitizeBoundingBoxes}
         - {type: RandomHorizontalFlip}
         - {type: Resize, size: [640, 640]}
         - {type: SanitizeBoundingBoxes}
         - {type: ConvertBox, out_fmt: cxcywh, normalize: True}
+        # NOTE: RandomPhotometricDistort / RandomZoomOut removed —
+        # torchvision's colour ops only support 1- or 3-channel images.
   shuffle: True
   batch_size: 8
   num_workers: 4
