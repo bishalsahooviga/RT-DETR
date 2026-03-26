@@ -79,7 +79,10 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
             print(loss_dict_reduced)
             sys.exit(1)
 
-        metric_logger.update(loss=loss_value, **loss_dict_reduced)
+        # ── Only log primary (non-aux, non-dn) losses per step for readability
+        primary_losses = {k: v for k, v in loss_dict_reduced.items()
+                          if not ('_aux_' in k or '_dn_' in k)}
+        metric_logger.update(loss=loss_value, **primary_losses)
         metric_logger.update(lr=optimizer.param_groups[0]["lr"])
 
     # gather the stats from all processes
