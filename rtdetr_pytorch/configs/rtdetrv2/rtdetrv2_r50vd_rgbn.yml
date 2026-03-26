@@ -3,6 +3,7 @@ __include__: [
   '../runtime.yml'
 ]
 
+epoches: 72  
 # ── Model ──────────────────────────────────────────────────────────────────────
 # RTDETR is the registered model class (from rtdetr_r50vd.yml include).
 # We override just the backbone to use the 4-channel PResNetRGBN.
