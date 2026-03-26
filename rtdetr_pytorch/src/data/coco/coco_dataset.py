@@ -45,7 +45,7 @@ class CocoDetection(torchvision.datasets.CocoDetection):
             target['boxes'] = _BoundingBox(
                 target['boxes'], 
                 format=datapoints.BoundingBoxFormat.XYXY, 
-                spatial_size=img.size[::-1]) # h w
+                canvas_size=img.size[::-1]) # h w
 
         if 'masks' in target:
             target['masks'] = datapoints.Mask(target['masks'])

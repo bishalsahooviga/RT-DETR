@@ -121,7 +121,7 @@ class RGBNDataset(torch.utils.data.Dataset):
         boxes_tv = datapoints.BoundingBoxes(
             boxes_t,
             format=datapoints.BoundingBoxFormat.XYXY,
-            spatial_size=(H, W),
+            canvas_size=(H, W),
         )
 
         target = {
