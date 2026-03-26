@@ -11,7 +11,7 @@ import torch.utils.data
 import torchvision
 
 from torchvision import tv_tensors as datapoints
-_BoundingBox = datapoints.BoundingBox
+_BoundingBox = datapoints.BoundingBoxes
 
 from pycocotools import mask as coco_mask
 
