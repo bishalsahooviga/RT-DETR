@@ -7,8 +7,7 @@ import torch.nn as nn
 
 import torchvision
 torchvision.disable_beta_transforms_warning()
-from torchvision import datapoints
-
+from torchvision import tv_tensors as datapoints
 import torchvision.transforms.v2 as T
 import torchvision.transforms.v2.functional as F
 
@@ -73,7 +72,7 @@ class PadToSize(T.Pad):
         datapoints.Image,
         datapoints.Video,
         datapoints.Mask,
-        datapoints.BoundingBox,
+        datapoints.BoundingBoxes,
     )
     def _get_params(self, flat_inputs: List[Any]) -> Dict[str, Any]:
         sz = F.get_spatial_size(flat_inputs[0])
@@ -122,7 +121,7 @@ class RandomIoUCrop(T.RandomIoUCrop):
 @register
 class ConvertBox(T.Transform):
     _transformed_types = (
-        datapoints.BoundingBox,
+        datapoints.BoundingBoxes,
     )
     def __init__(self, out_fmt='', normalize=False) -> None:
         super().__init__()
