@@ -1,40 +1,78 @@
-task: detection                        # ← was missing
-
 __include__: [
-  '../dataset/coco_detection.yml',
+  '../rtdetr/include/rtdetr_r50vd.yml',
   '../runtime.yml'
 ]
 
-# ── Model ──────────────────────────────────────────────
-model:
-  backbone:
-    name: ResNetRGBN
-    num_channels: 4          # 3 → 4
-    pretrained: true         # loads RGB weights; NIR initialized as mean
+# ── Model ──────────────────────────────────────────────────────────────────────
+# RTDETR is the registered model class (from rtdetr_r50vd.yml include).
+# We override just the backbone to use the 4-channel PResNetRGBN.
+RTDETR:
+  backbone: PResNetRGBN
+  encoder: HybridEncoder
+  decoder: RTDETRTransformer
+  multi_scale: [480, 512, 544, 576, 608, 640, 640, 640, 672, 704, 736, 768, 800]
 
-# ── Dataset ────────────────────────────────────────────
+# ── 4-channel Backbone ─────────────────────────────────────────────────────────
+PResNetRGBN:
+  depth: 50
+  variant: d
+  freeze_at: 0
+  return_idx: [1, 2, 3]
+  num_stages: 4
+  freeze_norm: True
+  pretrained: True      # loads RGB weights; NIR channel init = mean(RGB weights)
+
+# ── Dataset ────────────────────────────────────────────────────────────────────
+num_classes: 24
+remap_mscoco_category: False
+
 train_dataloader:
+  type: DataLoader
   dataset:
-    name: RGBNDataset
-    img_dir: /home/user18/bhunayan/Bhunayan2/DEV/dataset/train
+    type: RGBNDataset
+    img_folder: /home/user18/bhunayan/Bhunayan2/DEV/dataset/train
     ann_file: /home/user18/bhunayan/Bhunayan2/DEV/dataset/train.json
+    return_masks: False
+    transforms:
+      type: Compose
+      ops:
+        - {type: RandomPhotometricDistort}
+        - {type: RandomZoomOut, fill: 0}
+        - {type: RandomIoUCrop, p: 0.8}
+        - {type: SanitizeBoundingBox}
+        - {type: RandomHorizontalFlip}
+        - {type: Resize, size: [640, 640]}
+        - {type: SanitizeBoundingBox}
+        - {type: ConvertBox, out_fmt: cxcywh, normalize: True}
+  shuffle: True
   batch_size: 8
-  shuffle: true
+  num_workers: 4
+  drop_last: True
+  collate_fn: default_collate_fn
 
 val_dataloader:
+  type: DataLoader
   dataset:
-    name: RGBNDataset
-    img_dir: /home/user18/bhunayan/Bhunayan2/DEV/dataset/val
+    type: RGBNDataset
+    img_folder: /home/user18/bhunayan/Bhunayan2/DEV/dataset/val
     ann_file: /home/user18/bhunayan/Bhunayan2/DEV/dataset/val.json
+    return_masks: False
+    transforms:
+      type: Compose
+      ops:
+        - {type: Resize, size: [640, 640]}
+        - {type: ConvertBox, out_fmt: cxcywh, normalize: True}
+  shuffle: False
   batch_size: 4
-  shuffle: false
+  num_workers: 4
+  drop_last: False
+  collate_fn: default_collate_fn
 
-# ── Classes ────────────────────────────────────────────
-num_classes: 1               # ship only
+# ── 4-channel Normalisation (R, G, B, NIR) ────────────────────────────────────
+# Uncomment and add a Normalize step in the transforms ops above once you have
+# computed per-channel mean/std from your dataset.
+# Normalize: {mean: [0.485, 0.456, 0.406, 0.45], std: [0.229, 0.224, 0.225, 0.22]}
 
-# ── Normalization: 4-channel mean/std ──────────────────
-# Compute these from your dataset; placeholder values below
-transforms:
-  normalize:
-    mean: [0.485, 0.456, 0.406, 0.45]   # R, G, B, NIR
-    std:  [0.229, 0.224, 0.225, 0.22]   # R, G, B, NIR
+# ── Criterion overrides ────────────────────────────────────────────────────────
+# Inherited from rtdetr_r50vd.yml; no changes needed for num_classes since
+# the model reads num_classes from GLOBAL_CONFIG at build time.

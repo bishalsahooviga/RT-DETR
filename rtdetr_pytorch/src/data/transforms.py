@@ -6,7 +6,6 @@ import torch
 import torch.nn as nn 
 
 import torchvision
-torchvision.disable_beta_transforms_warning()
 from torchvision import tv_tensors as datapoints
 import torchvision.transforms.v2 as T
 import torchvision.transforms.v2.functional as F
@@ -146,7 +145,7 @@ class ConvertBox(T.Transform):
             spatial_size = inpt.spatial_size
             in_fmt = inpt.format.value.lower()
             inpt = torchvision.ops.box_convert(inpt, in_fmt=in_fmt, out_fmt=self.out_fmt)
-            inpt = datapoints.BoundingBox(inpt, format=self.data_fmt[self.out_fmt], spatial_size=spatial_size)
+            inpt = datapoints.BoundingBoxes(inpt, format=self.data_fmt[self.out_fmt], spatial_size=spatial_size)
         
         if self.normalize:
             inpt = inpt / torch.tensor(inpt.spatial_size[::-1]).tile(2)[None]
