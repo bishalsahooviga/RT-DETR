@@ -8,17 +8,17 @@ model:
 # ── Dataset ────────────────────────────────────────────
 train_dataloader:
   dataset:
-    name: RGBNShipDataset
-    img_dir: /path/to/dataset/train
-    ann_file: /path/to/dataset/train.json
+    name: RGBNDataset
+    img_dir: /home/user18/bhunayan/Bhunayan2/DEV/dataset/train
+    ann_file: /home/user18/bhunayan/Bhunayan2/DEV/dataset/train.json
   batch_size: 8
   shuffle: true
 
 val_dataloader:
   dataset:
-    name: RGBNShipDataset
-    img_dir: /path/to/dataset/val
-    ann_file: /path/to/dataset/val.json
+    name: RGBNDataset
+    img_dir: /home/user18/bhunayan/Bhunayan2/DEV/dataset/val
+    ann_file: /home/user18/bhunayan/Bhunayan2/DEV/dataset/val.json
   batch_size: 4
   shuffle: false
 
