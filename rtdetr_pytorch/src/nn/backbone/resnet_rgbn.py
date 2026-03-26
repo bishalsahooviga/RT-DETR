@@ -65,8 +65,8 @@ class PResNetRGBN(PResNet):
         new_conv = ConvNormLayer(
             ch_in=4,
             ch_out=first_conv.conv.out_channels,
-            k=first_conv.conv.kernel_size[0],
-            s=first_conv.conv.stride[0],
+            kernel_size=first_conv.conv.kernel_size[0],
+            stride=first_conv.conv.stride[0],
             act=act,
         )
 
