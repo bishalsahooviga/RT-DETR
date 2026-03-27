@@ -46,7 +46,7 @@ train_dataloader:
   batch_size: 8
   num_workers: 4
   drop_last: True
-  collate_fn: default_collate_fn
+  collate_fn: batch_image_collate_fn
 
 val_dataloader:
   type: DataLoader
@@ -66,7 +66,7 @@ val_dataloader:
   batch_size: 4
   num_workers: 4
   drop_last: False
-  collate_fn: default_collate_fn
+  collate_fn: batch_image_collate_fn
 
 # ── Optimizer ───────────────────────────────────────────
 optimizer:

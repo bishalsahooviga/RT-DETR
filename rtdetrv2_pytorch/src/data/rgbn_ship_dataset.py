@@ -82,6 +82,14 @@ class RGBNDataset(torch.utils.data.Dataset):
     def __len__(self):
         return len(self.ids)
 
+    def set_epoch(self, epoch: int) -> None:
+        """Called by rtdetrv2's DataLoader.set_epoch() each training epoch."""
+        self._epoch = epoch
+
+    @property
+    def epoch(self) -> int:
+        return self._epoch if hasattr(self, '_epoch') else -1
+
     # ------------------------------------------------------------------
     def __getitem__(self, idx):
         img_id = self.ids[idx]
