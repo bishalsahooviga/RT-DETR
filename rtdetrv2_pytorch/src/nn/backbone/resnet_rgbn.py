@@ -20,7 +20,7 @@ from src.core import register
 __all__ = ['PResNetRGBN']
 
 
-@register
+@register()
 class PResNetRGBN(PResNet):
     """
     4-channel (RGBN) backbone built on top of PResNet.

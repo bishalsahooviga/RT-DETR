@@ -49,7 +49,7 @@ def _load_image(path: str) -> np.ndarray:
     return img   # (4, H, W) float32 in [0, 1]
 
 
-@register
+@register()
 class RGBNDataset(torch.utils.data.Dataset):
     """
     COCO-format dataset for 4-channel (RGB + NIR) imagery.
