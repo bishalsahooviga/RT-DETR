@@ -91,6 +91,20 @@ class DetSolver(BaseSolver):
 
             print(f'best_stat: {best_stat}')
 
+            # ── Clean evaluation summary ─────────────────────────────────
+            if 'coco_eval_bbox' in test_stats:
+                s = test_stats['coco_eval_bbox']
+                print(
+                    f"\n{'═'*60}\n"
+                    f"  Epoch {epoch:03d}  Evaluation Results\n"
+                    f"{'─'*60}\n"
+                    f"  mAP  (IoU=0.50:0.95) : {s[0]:.4f}\n"
+                    f"  AP50 (IoU=0.50)      : {s[1]:.4f}\n"
+                    f"  AP75 (IoU=0.75)      : {s[2]:.4f}\n"
+                    f"  mAR  (@maxDets=100)  : {s[8]:.4f}\n"
+                    f"{'═'*60}\n"
+                )
+
             log_stats = {
                 **{f'train_{k}': v for k, v in train_stats.items()},
                 **{f'test_{k}': v for k, v in test_stats.items()},

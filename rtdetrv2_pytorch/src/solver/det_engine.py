@@ -30,6 +30,8 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
     
     print_freq = kwargs.get('print_freq', 10)
     writer :SummaryWriter = kwargs.get('writer', None)
+    # Key losses to show per step (suppress aux/dn/enc noise)
+    _KEY_LOSSES = ('loss_vfl', 'loss_bbox', 'loss_giou')
 
     ema :ModelEMA = kwargs.get('ema', None)
     scaler :GradScaler = kwargs.get('scaler', None)
@@ -87,7 +89,9 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
             print(loss_dict_reduced)
             sys.exit(1)
 
-        metric_logger.update(loss=loss_value, **loss_dict_reduced)
+        # Log only key losses per step to avoid clutter
+        key_losses = {k: v for k, v in loss_dict_reduced.items() if k in _KEY_LOSSES}
+        metric_logger.update(loss=loss_value, **key_losses)
         metric_logger.update(lr=optimizer.param_groups[0]["lr"])
 
         if writer and dist_utils.is_main_process():
@@ -99,7 +103,17 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
                 
     # gather the stats from all processes
     metric_logger.synchronize_between_processes()
-    print("Averaged stats:", metric_logger)
+    m = metric_logger.meters
+    print(
+        f"\n{'─'*60}\n"
+        f"  Epoch {epoch} training summary\n"
+        f"  loss      : {m['loss'].global_avg:.4f}\n"
+        f"  loss_vfl  : {m['loss_vfl'].global_avg:.4f}\n"
+        f"  loss_bbox : {m['loss_bbox'].global_avg:.4f}\n"
+        f"  loss_giou : {m['loss_giou'].global_avg:.4f}\n"
+        f"  lr        : {m['lr'].global_avg:.6f}\n"
+        f"{'─'*60}"
+    )
     return {k: meter.global_avg for k, meter in metric_logger.meters.items()}
 
 
