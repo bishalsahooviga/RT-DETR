@@ -138,6 +138,21 @@ class RGBNDataset(torch.utils.data.Dataset):
         if self._transforms is not None:
             img_tensor, target = self._transforms(img_tensor, target)
 
+        # ── Manually normalize boxes to [0,1] cxcywh ────────────────
+        boxes = target['boxes']  # still xyxy pixel after transforms
+
+        if isinstance(boxes, torch.Tensor) and boxes.numel() > 0:
+            # Get post-transform image size
+            _, h, w = img_tensor.shape
+
+            # Convert xyxy pixel → cxcywh normalized
+            x1, y1, x2, y2 = boxes.unbind(-1)
+            cx = (x1 + x2) / 2.0 / w
+            cy = (y1 + y2) / 2.0 / h
+            bw = (x2 - x1) / w
+            bh = (y2 - y1) / h
+            target['boxes'] = torch.stack([cx, cy, bw, bh], dim=-1).clamp(0, 1)
+
         return img_tensor, target
     # ------------------------------------------------------------------
     def extra_repr(self) -> str:
