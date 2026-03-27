@@ -107,7 +107,9 @@ class RGBNDataset(torch.utils.data.Dataset):
             y1, y2 = max(0.0, y1), min(H, y2)
             if x2 > x1 and y2 > y1:
                 boxes.append([x1, y1, x2, y2])
-                labels.append(ann['category_id'])
+                # category_id in COCO JSON is 1-based; convert to 0-based
+                # label index expected by the RT-DETR criterion.
+                labels.append(ann['category_id'] - 1)
                 areas.append((x2 - x1) * (y2 - y1))
 
         if boxes:

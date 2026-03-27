@@ -22,7 +22,7 @@ PResNetRGBN:
   pretrained: True
 
 # ── Dataset ────────────────────────────────────────────
-num_classes: 25
+num_classes: 24
 remap_mscoco_category: False
 
 train_dataloader:
