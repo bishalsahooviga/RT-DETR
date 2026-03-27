@@ -107,8 +107,9 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
 def evaluate(model: torch.nn.Module, criterion: torch.nn.Module, postprocessor, data_loader, coco_evaluator: CocoEvaluator, device):
     model.eval()
     criterion.eval()
-    coco_evaluator.cleanup()
-    iou_types = coco_evaluator.iou_types
+    if coco_evaluator is not None:
+        coco_evaluator.cleanup()
+    iou_types = coco_evaluator.iou_types if coco_evaluator is not None else []
 
     metric_logger = MetricLogger(delimiter="  ")
     header = 'Test:'

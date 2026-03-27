@@ -4,6 +4,12 @@ __include__: [
 ]
 
 epoches: 72
+output_dir: ./output/rtdetrv2_r50vd_rgbn
+
+# ── Evaluator ──────────────────────────────────────────
+evaluator:
+  type: CocoEvaluator
+  iou_types: ['bbox']
 
 # ── Model ──────────────────────────────────────────────
 RTDETR:
