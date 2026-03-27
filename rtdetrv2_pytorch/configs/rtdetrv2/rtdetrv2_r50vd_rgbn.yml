@@ -1,5 +1,5 @@
 __include__: [
-  'configs/rtdetrv2/include/rtdetr_r50vd.yml',
+  './include/rtdetrv2_r50vd.yml',
   '../runtime.yml'
 ]
 
