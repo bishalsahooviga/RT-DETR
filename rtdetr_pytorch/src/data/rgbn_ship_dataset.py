@@ -107,7 +107,7 @@ class RGBNDataset(torch.utils.data.Dataset):
             y1, y2 = max(0.0, y1), min(H, y2)
             if x2 > x1 and y2 > y1:
                 boxes.append([x1, y1, x2, y2])
-                labels.append(ann['category_id'] - 1)   # ← 0-indexed
+                labels.append(ann['category_id'])
                 areas.append((x2 - x1) * (y2 - y1))
 
         if boxes:
@@ -128,8 +128,8 @@ class RGBNDataset(torch.utils.data.Dataset):
             'boxes':     boxes_tv,
             'labels':    labels_t,
             'image_id':  torch.tensor([img_id]),
-            'orig_size': torch.tensor([H, W]),        # ← H first
-            'size':      torch.tensor([H, W]),         # ← H first
+            'orig_size': torch.tensor([W, H]),
+            'size':      torch.tensor([W, H]),
             'area':      torch.tensor(areas, dtype=torch.float32),
             'iscrowd':   torch.zeros(len(labels_t), dtype=torch.int64),
         }
@@ -137,21 +137,6 @@ class RGBNDataset(torch.utils.data.Dataset):
         # ── Apply transforms ────────────────────────────────────────
         if self._transforms is not None:
             img_tensor, target = self._transforms(img_tensor, target)
-
-        # ── Manually normalize boxes to [0,1] cxcywh ────────────────
-        boxes = target['boxes']  # still xyxy pixel after transforms
-
-        if isinstance(boxes, torch.Tensor) and boxes.numel() > 0:
-            # Get post-transform image size
-            _, h, w = img_tensor.shape
-
-            # Convert xyxy pixel → cxcywh normalized
-            x1, y1, x2, y2 = boxes.unbind(-1)
-            cx = (x1 + x2) / 2.0 / w
-            cy = (y1 + y2) / 2.0 / h
-            bw = (x2 - x1) / w
-            bh = (y2 - y1) / h
-            target['boxes'] = torch.stack([cx, cy, bw, bh], dim=-1).clamp(0, 1)
 
         return img_tensor, target
     # ------------------------------------------------------------------
