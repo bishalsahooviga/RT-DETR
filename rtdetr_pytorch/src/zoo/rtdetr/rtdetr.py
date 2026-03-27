@@ -32,8 +32,14 @@ class RTDETR(nn.Module):
             
         x = self.backbone(x)
         print("Backbone outputs:", [f.shape for f in x])
-        x = self.encoder(x)        
-        print("Encoder output:", x.shape) 
+        x = self.encoder(x)     
+        try:
+            print("Encoder output:", x.shape) 
+        except:
+            try :
+                print("Encoder output is a list of tensors:", len(x))
+            except:
+                print("Encoder output is of type:", type(x))
         x = self.decoder(x, targets)
 
         return x
