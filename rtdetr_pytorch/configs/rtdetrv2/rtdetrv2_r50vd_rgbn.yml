@@ -3,17 +3,15 @@ __include__: [
   '../runtime.yml'
 ]
 
-epoches: 72  
-# ── Model ──────────────────────────────────────────────────────────────────────
-# RTDETR is the registered model class (from rtdetr_r50vd.yml include).
-# We override just the backbone to use the 4-channel PResNetRGBN.
+epoches: 72
+
+# ── Model ──────────────────────────────────────────────
 RTDETR:
   backbone: PResNetRGBN
   encoder: HybridEncoder
   decoder: RTDETRTransformer
-  multi_scale: [480, 512, 544, 576, 608, 640, 640, 640, 672, 704, 736, 768, 800]
+  multi_scale: ~                        # disabled until AP > 0
 
-# ── 4-channel Backbone ─────────────────────────────────────────────────────────
 PResNetRGBN:
   depth: 50
   variant: d
@@ -21,9 +19,9 @@ PResNetRGBN:
   return_idx: [1, 2, 3]
   num_stages: 4
   freeze_norm: True
-  pretrained: True      # loads RGB weights; NIR channel init = mean(RGB weights)
+  pretrained: True
 
-# ── Dataset ────────────────────────────────────────────────────────────────────
+# ── Dataset ────────────────────────────────────────────
 num_classes: 24
 remap_mscoco_category: False
 
@@ -37,15 +35,16 @@ train_dataloader:
     transforms:
       type: Compose
       ops:
-        # ── Geometric augmentations (4-channel safe) ──────────────────
         - {type: RandomIoUCrop, p: 0.8}
         - {type: SanitizeBoundingBoxes}
         - {type: RandomHorizontalFlip}
-        - {type: Resize, size: [640, 640]}
+        - {type: Resize, size: [1024, 1024]}
         - {type: SanitizeBoundingBoxes}
+        - {type: ToImageTensor}
+        - {type: ConvertDtype}
+        - {type: Normalize, mean: [0.485, 0.456, 0.406, 0.45],
+                            std:  [0.229, 0.224, 0.225, 0.22]}
         - {type: ConvertBox, out_fmt: cxcywh, normalize: True}
-        # NOTE: RandomPhotometricDistort / RandomZoomOut removed —
-        # torchvision's colour ops only support 1- or 3-channel images.
   shuffle: True
   batch_size: 8
   num_workers: 4
@@ -62,22 +61,17 @@ val_dataloader:
     transforms:
       type: Compose
       ops:
-        - {type: Resize, size: [640, 640]}
+        - {type: Resize, size: [1024, 1024]}
+        - {type: ToImageTensor}
+        - {type: ConvertDtype}
+        - {type: Normalize, mean: [0.485, 0.456, 0.406, 0.45],
+                            std:  [0.229, 0.224, 0.225, 0.22]}
         - {type: ConvertBox, out_fmt: cxcywh, normalize: True}
   shuffle: False
   batch_size: 4
   num_workers: 4
   drop_last: False
   collate_fn: default_collate_fn
-
-# ── 4-channel Normalisation (R, G, B, NIR) ────────────────────────────────────
-# Uncomment and add a Normalize step in the transforms ops above once you have
-# computed per-channel mean/std from your dataset.
-# Normalize: {mean: [0.485, 0.456, 0.406, 0.45], std: [0.229, 0.224, 0.225, 0.22]}
-
-# ── Criterion overrides ────────────────────────────────────────────────────────
-# Inherited from rtdetr_r50vd.yml; no changes needed for num_classes since
-# the model reads num_classes from GLOBAL_CONFIG at build time.
 
 # ── Optimizer ───────────────────────────────────────────
 optimizer:
