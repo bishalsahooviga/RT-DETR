@@ -72,7 +72,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
             ema.update(model)
 
         loss_dict_reduced = reduce_dict(loss_dict)
-        loss_value = sum(loss_dict_reduced.values())
+        loss_value = sum(loss_dict_reduced.values()).detach().item()
 
         if not math.isfinite(loss_value):
             print("Loss is {}, stopping training".format(loss_value))
