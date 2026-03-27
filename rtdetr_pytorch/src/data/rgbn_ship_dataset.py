@@ -99,16 +99,16 @@ class RGBNDataset(torch.utils.data.Dataset):
         anns = self.coco.loadAnns(ann_ids)
         anns = [a for a in anns if a.get('iscrowd', 0) == 0]
 
-        boxes, labels = [], []
+        boxes, labels, areas = [], [], []
         for ann in anns:
             x, y, w, h = ann['bbox']
             x1, y1, x2, y2 = x, y, x + w, y + h
-            # Clamp to image bounds
-            x1, x2 = max(0, x1), min(W, x2)
-            y1, y2 = max(0, y1), min(H, y2)
+            x1, x2 = max(0.0, x1), min(W, x2)
+            y1, y2 = max(0.0, y1), min(H, y2)
             if x2 > x1 and y2 > y1:
                 boxes.append([x1, y1, x2, y2])
-                labels.append(ann['category_id'])
+                labels.append(ann['category_id'] - 1)   # ← 0-indexed
+                areas.append((x2 - x1) * (y2 - y1))
 
         if boxes:
             boxes_t = torch.tensor(boxes, dtype=torch.float32)
@@ -117,7 +117,7 @@ class RGBNDataset(torch.utils.data.Dataset):
 
         labels_t = torch.tensor(labels, dtype=torch.int64)
 
-        # Wrap boxes as tv_tensors so v2 transforms handle them correctly
+        # Wrap as tv_tensors so v2 transforms handle them correctly
         boxes_tv = datapoints.BoundingBoxes(
             boxes_t,
             format=datapoints.BoundingBoxFormat.XYXY,
@@ -128,12 +128,9 @@ class RGBNDataset(torch.utils.data.Dataset):
             'boxes':     boxes_tv,
             'labels':    labels_t,
             'image_id':  torch.tensor([img_id]),
-            'orig_size': torch.tensor([W, H]),
-            'size':      torch.tensor([W, H]),
-            'area':      torch.tensor([ann['area'] for ann in anns
-                                       if ann.get('iscrowd', 0) == 0 and
-                                          (ann['bbox'][2] > 0 and ann['bbox'][3] > 0)],
-                                      dtype=torch.float32),
+            'orig_size': torch.tensor([H, W]),        # ← H first
+            'size':      torch.tensor([H, W]),         # ← H first
+            'area':      torch.tensor(areas, dtype=torch.float32),
             'iscrowd':   torch.zeros(len(labels_t), dtype=torch.int64),
         }
 
@@ -142,7 +139,6 @@ class RGBNDataset(torch.utils.data.Dataset):
             img_tensor, target = self._transforms(img_tensor, target)
 
         return img_tensor, target
-
     # ------------------------------------------------------------------
     def extra_repr(self) -> str:
         s = f' img_folder: {self.img_folder}\n ann_file: {self.ann_file}\n'
