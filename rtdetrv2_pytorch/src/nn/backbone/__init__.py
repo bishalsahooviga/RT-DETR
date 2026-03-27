@@ -8,6 +8,7 @@ from .common import (
 )
 from .presnet import PResNet
 from .test_resnet import MResNet
+from .resnet_rgbn import PResNetRGBN
 
 from .timm_model import TimmModel
 from .torchvision_model import TorchVisionModel

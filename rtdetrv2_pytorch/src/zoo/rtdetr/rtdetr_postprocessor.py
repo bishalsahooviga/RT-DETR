@@ -60,6 +60,11 @@ class RTDETRPostProcessor(nn.Module):
             labels = mod(index, self.num_classes)
             index = index // self.num_classes
             boxes = bbox_pred.gather(dim=1, index=index.unsqueeze(-1).repeat(1, 1, bbox_pred.shape[-1]))
+            # Convert 0-based class indices → 1-based COCO category_ids so
+            # predictions align with the ground-truth JSON (category_id 1..N).
+            # This applies only when remap_mscoco_category=False (custom datasets).
+            if not self.remap_mscoco_category:
+                labels = labels + 1
             
         else:
             scores = F.softmax(logits)[:, :, :-1]

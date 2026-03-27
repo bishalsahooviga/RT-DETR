@@ -189,6 +189,14 @@ def get_coco_api_from_dataset(dataset):
             dataset = dataset.dataset
     if isinstance(dataset, torchvision.datasets.CocoDetection):
         return dataset.coco
+    # Datasets like RGBNDataset store the raw COCO API as .coco.
+    # Use it directly so ground-truth boxes come from the original JSON
+    # (absolute pixel xywh), NOT from running items through transforms
+    # (which would yield normalized cxcywh → IoU ≈ 0 → mAP = 0).
+    # Note: convert_to_coco_api also calls ds.load_item() which RGBNDataset
+    # does not implement, so this shortcut is doubly necessary here.
+    if hasattr(dataset, 'coco'):
+        return dataset.coco
     return convert_to_coco_api(dataset)
 
 
