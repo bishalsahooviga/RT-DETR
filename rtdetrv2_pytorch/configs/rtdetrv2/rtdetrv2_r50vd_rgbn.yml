@@ -50,7 +50,7 @@ train_dataloader:
                             std:  [0.229, 0.224, 0.225, 0.22]}
   shuffle: True
   batch_size: 16
-  num_workers: 8
+  num_workers: 4
   drop_last: True
   collate_fn:
     type: BatchImageCollateFunction

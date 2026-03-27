@@ -6,6 +6,11 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 
 import argparse
+import torch
+
+# Fix: "received 0 items of ancdata" - file descriptor exhaustion in DataLoader workers
+# Switch from file_descriptor (default) to file_system sharing to avoid ulimit issues
+torch.multiprocessing.set_sharing_strategy('file_system')
 
 from src.misc import dist_utils
 from src.core import YAMLConfig, yaml_utils
