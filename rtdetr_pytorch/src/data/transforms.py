@@ -15,6 +15,25 @@ from typing import Any, Dict, List, Optional
 
 from src.core import register, GLOBAL_CONFIG
 
+# src/data/transforms.py — add this near the other registrations
+
+import torch
+
+class ToDtypeFloat32(torch.nn.Module):
+    """
+    Registered wrapper around T.ToDtype so YAML doesn't need
+    to pass torch.float32 as a string argument.
+    Converts image to float32 and scales [0,255] → [0,1].
+    """
+    def __init__(self):
+        super().__init__()
+        self.transform = T.ToDtype(dtype=torch.float32, scale=True)
+
+    def forward(self, *args):
+        return self.transform(*args)
+
+ToDtypeFloat32 = register(ToDtypeFloat32)
+
 
 __all__ = ['Compose', ]
 
