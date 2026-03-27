@@ -14,8 +14,7 @@ import torch
 import torch.nn as nn
 from collections import OrderedDict
 
-from .presnet import PResNet, donwload_url
-from .common import ConvNormLayer
+from .presnet import PResNet, donwload_url, ConvNormLayer
 from src.core import register
 
 __all__ = ['PResNetRGBN']
