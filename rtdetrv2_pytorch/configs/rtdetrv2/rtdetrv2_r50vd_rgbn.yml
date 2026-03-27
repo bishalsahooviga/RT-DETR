@@ -9,8 +9,7 @@ epoches: 72
 RTDETR:
   backbone: PResNetRGBN
   encoder: HybridEncoder
-  decoder: RTDETRTransformer
-  multi_scale: ~                        # disabled until AP > 0
+  decoder: RTDETRTransformerv2
 
 PResNetRGBN:
   depth: 50
